@@ -10,12 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190729162942) do
+ActiveRecord::Schema.define(version: 20190730141054) do
 
   create_table "concerts", force: :cascade do |t|
+    t.string  "organisation"
     t.string  "venue"
     t.string  "artist"
     t.integer "no_of_tickets"
+    t.string  "start_time"
+    t.string  "end_time"
+    t.string  "email"
+    t.string  "password"
   end
 
   create_table "tickets", force: :cascade do |t|
