@@ -3,10 +3,18 @@ def welcome_message
 end
 
 def login_type
-    PROMPT.select("Please choose your login type:") do |menu|
-        menu.choice "User Login"
-        menu.choice "Create new User Account"
-        menu.choice "Concert Login"
-        menu.choice "Create new Concert Account"
-    end
+    options = [
+        {"User Login" => -> do user_login end},
+        {"Create new User Account" => -> do create_new_user_account end},
+        {"Concert Login" => -> do organisation_login end},
+        {"Create new Concert Account" => -> do create_new_organisation_account end},
+        {"Exit Ticket Swap" => -> do exit_app end}   
+    ]
+    PROMPT.select("Please choose your login type or exit the app:", options) 
+end
+
+def exit_app
+    sleep(2)
+    p "Thanks for using Ticket Swap"
+    exit!
 end
