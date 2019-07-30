@@ -10,18 +10,18 @@ def user_login
     # binding.pry
     if User.find_by user_name: username
         current_user = User.find_by user_name: username
-        password = PROMPT.ask("Please enter your password:", required: true)
-            if current_user.password == password
-                return current_user
-            else
-                puts "Incorrect password, please try again!"
-            end
 
+        password = PROMPT.ask("Please enter your password:", required: true)
+            until password == current_user.password
+                puts "Incorrect password, please try again"
+                password = PROMPT.ask("Please enter your password:", required: true)
+            end
+        current_user
     else 
         puts "Username not found please create a new Account!"
-        create_new_user_account
+        current_user = create_new_user_account
     end
-
+    current_user
 end
 
 def decision_tree
@@ -49,25 +49,44 @@ def create_new_user_account
     User.create(user_name: user_username, name: user_fullname, age: user_age, email: user_email, password: user_password)
 end
 
-def update_user_account
-    puts "What would you like to update?"
-    # (Needs to find unique id)
-    # User.update(Where?)
+def update_user_account(current_user)
+    PROMPT.select("What would you like to update?") do |menu|
+        menu.choice "Update your username", value: update_username(current_user)
+        menu.choice "Update your password", value: update_password(current_user)
+        menu.choice "Update your email", value: update_email(current_user)
+        menu.choice "Return to home menu", value: decision_tree
+    end
 end
 
-def delete_user_account
-    puts "Are you sure you want to delete your account? Doing so will sell all tickets!"
-    User.delete(id = user.id)
+def update_username(current_user)
+    current_user.update(user_name: PROMPT.ask("Input new username"))
+end
+
+def update_password(current_user)
+    current_user.update(password: PROMPT.ask("Input new password"))
+end
+
+def update_email(current_user)
+    current_user.update(email: PROMPT.ask("Input new email"))
+end
+
+def delete_user_account(current_user)
+    puts "Your account has been deleted"
+    current_user.delete
 end
 
 def search_for_concerts
+    puts "Here is your concert"
 end
 
 def buy_ticket
+    puts "You have bought a ticket"
 end
 
 def sell_ticket
+    puts "You have sold ticket"
 end
 
-def Logout
+def logout
+    puts "You have logged out"
 end
