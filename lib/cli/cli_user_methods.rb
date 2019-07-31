@@ -1,9 +1,3 @@
-# require_relative '/lib/models/user.rb'
-# require_relative '../../config/environment'
-
-# User specific methods
-
-# require 'pry'
 
 def user_login
     username = PROMPT.ask("Please enter your username:", required: true)
@@ -36,15 +30,15 @@ def decision_tree(current_user)
 end
 
 def create_new_user_account
-    user_fullname = PROMPT.ask("Please enter your full name:")
+    user_fullname = PROMPT.ask("Please enter your full name:", required: true)
     
-    user_age = PROMPT.ask("Please enter your age (in years):")
+    user_age = PROMPT.ask("Please enter your age (in years):", required: true)
      
-    user_username = PROMPT.ask("Please create a new username:")
+    user_username = PROMPT.ask("Please create a new username:", required: true)
      
-    user_password = PROMPT.ask("Please create a password:")
+    user_password = PROMPT.ask("Please create a password:", required: true)
      
-    user_email = PROMPT.ask("Please enter you email address")
+    user_email = PROMPT.ask("Please enter you email address", required: true)
 
     User.create(user_name: user_username, name: user_fullname, age: user_age, email: user_email, password: user_password)
 end
@@ -60,15 +54,27 @@ def update_user_account(current_user)
 end
 
 def update_username(current_user)
-    current_user.update(user_name: PROMPT.ask("Input new username"))
+    new_user_name = PROMPT.ask("Input new username", required: true)
+    while User.find_by user_name: new_user_name
+        puts "Username already exists. Please enter a new username!"
+        new_user_name = PROMPT.ask("Input new username", required: true)
+    end
+
+    current_user.update(user_name: new_user_name)
 end
 
 def update_password(current_user)
-    current_user.update(password: PROMPT.ask("Input new password"))
+    current_user.update(password: PROMPT.ask("Input new password", required: true))
 end
 
 def update_email(current_user)
-    current_user.update(email: PROMPT.ask("Input new email"))
+    new_email = PROMPT.ask("Input new email", required: true)
+    while User.find_by email: new_email
+        puts "Email already exists. Please enter a new email!"
+        new_email = PROMPT.ask("Input new email", required: true)
+    end
+
+    current_user.update(email: new_email)
 end
 
 def delete_user_account(current_user)

@@ -1,6 +1,6 @@
 require_relative 'cli_user_methods.rb'
 require_relative 'cli_concert_methods.rb'
-require_relative 'cli_welcome_and_login.rb'
+require_relative 'cli_welcome_login_and_exit.rb'
 
 def cli_runner
     welcome_message
