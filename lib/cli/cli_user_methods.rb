@@ -9,20 +9,21 @@ def user_login
                     username = PROMPT.ask("Please enter your username:", required: true)
                     password = PROMPT.mask("Please enter your password:", required: true)
                 end
-            return current_user
         else 
-            password = nil
+            # password = nil
             options = [
             {"Re-enter username" => -> do username = PROMPT.ask("Please enter your username:", required: true) end},
             {"Create new account" => -> do current_user = create_new_user_account end}
             ]
             PROMPT.select("Username not found. Would you like to?", options)
         end
-        current_user
+        failed_current_user = User.find_by user_name: username, password: password
+        return failed_current_user
     end
+    current_user = User.find_by user_name: username, password: password
 end
 
-def ecision_tree(current_user)
+def user_decision_tree(current_user)
     options = [
         {"Update your user account" => -> do update_user_account(current_user) end},
         {"Delete your user account" => -> do delete_user_account(current_user) end},
@@ -70,7 +71,7 @@ def update_user_account(current_user)
         {"Update your username" => -> do update_username(current_user) end},
         {"Update your password" => -> do update_password(current_user) end},
         {"Update your email" => -> do update_email(current_user) end},
-        {"Return to home menu" => -> do decision_tree(current_user) end}
+        {"Return to home menu" => -> do user_decision_tree(current_user) end}
     ]
     PROMPT.select("What would you like to update?", options) 
 end

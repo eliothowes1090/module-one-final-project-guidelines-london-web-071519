@@ -2,23 +2,19 @@
 def organisation_login
     # organisation_name = ask_for_organisation_name
     # organisation_password = ask_for_organisation_password
-    organisation_name = PROMPT.ask("please enter your organisation:", required: true)
+    organisation_name = PROMPT.ask("Please enter your organisation:", required: true)
     organisation_password = PROMPT.ask("please enter your password:", required: true)
 
     until Concert.find_by organisation: organisation_name, password: organisation_password
-        # current_organisation = Concert.find_by organisation: organisation_name
         if Concert.find_by organisation: organisation_name 
             current_organisation = Concert.find_by organisation: organisation_name
             until organisation_password == current_organisation.password
                 puts "Organisation found. Please re-enter your organisation and password:"
                     organisation_name = PROMPT.ask("please enter your organisation:", required: true)
                     organisation_password = PROMPT.ask("please enter your password:", required: true)
-                # organisation_name = ask_for_organisation_name
-                # organisation_password = ask_for_organisation_password
-                # failed_current_organisation = Concert.find_by organisation: organisation_name, password: organisation_password
             end
         else
-            password = nil
+            # organisation_password = nil
             options = [
             {"Re-enter organisation" => -> do organisation_name = PROMPT.ask("please enter your organisation:", required: true) end},
             {"Create new organisation" => -> do current_organisation = create_new_organisation_account end}
