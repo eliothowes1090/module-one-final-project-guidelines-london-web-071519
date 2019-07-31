@@ -45,6 +45,16 @@ def create_new_organisation_account
     Concert.create(organisation: organisation_name, password: organisation_password, email: organisation_email)
 end
 
+def organisation_decision_tree(current_organisation)
+    options = [
+        {"Create a concert" => -> do create_concert(current_organisation) end},
+        {"Cancel concert" => -> do "Cancel Concert"end},
+        {"Increase concert capacity" => -> do "Increase capacity" end},
+        {"Logout" => -> do logout end} 
+    ]
+    PROMPT.select("What would you like to do?", options)
+end
+
 def ask_for_organisation_name
     PROMPT.ask("Please enter your organisation name:", required: true)
 end
@@ -57,7 +67,6 @@ def ask_for_organisation_email
     PROMPT.ask("Please enter your organisation email:", required: true)
 end
 
-
 def organisation_validation(organisation_name)
     until Concert.find_by organisation: organisation_name 
         options = [
@@ -67,7 +76,6 @@ def organisation_validation(organisation_name)
         PROMPT.select("Organisation not found. Please re-enter your organisation name or create a new organisation account:", options)
     end
 end
-
 
 def password_validation(organisation_password)
     until Concert.find_by password: organisation_password
@@ -79,7 +87,6 @@ def password_validation(organisation_password)
     end
 end
 
-
 def email_validation(organisation_email)
     until Concert.find_by email: organisation_email
         puts "Email already exists. Please enter a new email:"
@@ -87,27 +94,20 @@ def email_validation(organisation_email)
     end
 end
 
-def organisation_decision_tree
-    options = [
-        {"Create a concert" => -> do create_concert end},
-        {"Cancel concert" => -> do "Cancel Concert"end},
-        {"Increase concert capacity" => -> do "Increase capacity" end},
-        {"Logout" => -> do logout end} 
-    ]
-    PROMPT.select("What would you like to do?", options)
-end
-
-def create_concert
+def create_concert(current_organisation)
     venue = PROMPT.ask("Add venue:", required: true)
+    # binding.pry1
     current_organisation.venue = venue
     artist = PROMPT.ask("Add an artist:", required: true)
     current_organisation.artist = artist
-    no_of_ticket = PROMPT.ask("Add number of tickets:", required: true)
+    no_of_tickets = PROMPT.ask("Add number of tickets:", required: true)
     current_organisation.no_of_tickets = no_of_tickets
     start_time = PROMPT.ask("Add a start time:", required: true)
     current_organisation.start_time = start_time
     end_time = PROMPT.ask("Add and end time:", required: true)
     current_organisation.end_time = end_time
+    current_organisation.save
+    organisation_decision_tree(current_organisation)
 end
 
 def cancel_concert
