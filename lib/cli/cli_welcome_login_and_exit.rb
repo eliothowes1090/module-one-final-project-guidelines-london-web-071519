@@ -14,7 +14,7 @@ def login_type
 end
 
 def exit_app
-    sleep(2)
     p "Thanks for using Ticket Swap"
+    sleep(2)
     exit!
 end
