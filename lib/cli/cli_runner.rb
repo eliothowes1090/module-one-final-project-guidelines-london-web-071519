@@ -4,6 +4,7 @@ require_relative 'cli_welcome_login_and_exit.rb'
 
 
     def run
+        # binding.pry
         welcome_message
         output = login_type
 
