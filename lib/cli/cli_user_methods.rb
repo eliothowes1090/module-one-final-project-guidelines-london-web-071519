@@ -27,7 +27,7 @@ def user_decision_tree(current_user)
     options = [
         {"Update your user account" => -> do update_user_account(current_user) end},
         {"Delete your user account" => -> do delete_user_account(current_user) end},
-        {"Search for concerts" => -> do search_for_concerts end},
+        {"Search for and choose a concert" => -> do search_for_concerts_and_select_concert end},
         {"Buy ticket" => -> do buy_ticket end},
         {"Sell ticket" => -> do sell_ticket end},
         {"Logout" => -> do logout end} 
@@ -107,16 +107,40 @@ def delete_user_account(current_user)
     current_user = login_type
 end
 
-def search_for_concerts
-    puts "Here is your concert"
+def convert_obj_to_string(obj)
+    string = " - - -> Concert Venue: #{obj.venue} - - - Artist: #{obj.artist} - - - Tickets Available: #{obj.no_of_tickets} - - - Start Time: #{obj.start_time} - - - End Time #{obj.end_time} <- - - "
 end
 
-def buy_ticket
-    puts "You have bought a ticket"
+def search_for_concerts_and_select_concert
+    puts "Here are the upcomming concerts"
+    list_of_concerts = Concert.all.where.not(venue: nil)
+    array_of_obj_and_strings = {}
+        
+    list_of_concerts.each do |concert|
+        array_of_obj_and_strings[concert] = convert_obj_to_string(concert)
+    end
+    
+    selection = PROMPT.select("Please select a concert:", array_of_obj_and_strings.values)
+    output = array_of_obj_and_strings.key(selection)
+    output
 end
 
-def sell_ticket
-    puts "You have sold ticket"
+# def select_concert(search_for_concerts)
+#     selected_concert = PROMPT.select("Please choose a concert:", search_for_concerts)
+#     binding.pry
+# end
+
+def buy_ticket(current_user)
+    puts "Which concert would you like to buy a ticket for?"
+    # need to add in concert_id that matches above
+    first_unsold_ticket = Ticket.find_by user_id: nil
+    first_unsold_ticket.update user_id: current_user.id
+end
+
+def sell_ticket(current_user)
+    puts "For which concert would you like to sell your ticket?"
+    concert_to_sell_ticket_for = nil
+    first_owned_ticket_that_matches_concert = Ticket.find_by user_id: current_user.id, concert_id: 
 end
 
 def logout

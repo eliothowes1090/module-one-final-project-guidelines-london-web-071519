@@ -48,7 +48,7 @@ end
 def organisation_decision_tree(current_organisation)
     options = [
         {"Create a concert" => -> do create_concert(current_organisation) end},
-        {"Cancel concert" => -> do "Cancel Concert"end},
+        {"Cancel concert" => -> do cancel_concert(current_organisation) end},
         {"Increase concert capacity" => -> do increase_concert_capacity(current_organisation) end},
         {"Logout" => -> do logout end} 
     ]
@@ -96,12 +96,12 @@ end
 
 def create_concert(current_organisation)
     venue = PROMPT.ask("Add venue:", required: true)
-    # binding.pry1
     current_organisation.venue = venue
     artist = PROMPT.ask("Add an artist:", required: true)
     current_organisation.artist = artist
     no_of_tickets = PROMPT.ask("Add number of tickets:", required: true)
     current_organisation.no_of_tickets = no_of_tickets
+    create_tickets(current_organisation)
     start_time = PROMPT.ask("Add a start time:", required: true)
     current_organisation.start_time = start_time
     end_time = PROMPT.ask("Add and end time:", required: true)
@@ -110,8 +110,22 @@ def create_concert(current_organisation)
     organisation_decision_tree(current_organisation)
 end
 
-def cancel_concert
-    # current.organisation.delete(venue, artist)
+def create_tickets(current_organisation)
+    ticket_price = PROMPT.ask("Please enter the cost of tickets:", require: true)
+    current_organisation.no_of_tickets.times do 
+        Ticket.create(price: ticket_price, concert_id: current_organisation.id)
+    end
+end
+
+def cancel_concert(current_organisation)
+    confirm_cancellation = PROMPT.yes?("Are you sure you want to cancel this concert?")
+    if confirm_cancellation
+        # binding.pry
+        current_organisation.update(:venue => nil, :artist => nil, :no_of_tickets => nil, :start_time => nil, :end_time => nil)
+        organisation_decision_tree(current_organisation)
+    elsif !confirm_cancellation
+        organisation_decision_tree(current_organisation)
+    end
 end
 
 def increase_concert_capacity(current_organisation)
@@ -120,9 +134,6 @@ def increase_concert_capacity(current_organisation)
     current_organisation.save
     organisation_decision_tree(current_organisation)
 end
-
-
-
 
 def logout
     puts "You have logged out"
