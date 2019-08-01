@@ -1,23 +1,29 @@
-
 def user_login
     username = PROMPT.ask("Please enter your username:", required: true)
-    if User.find_by user_name: username
-        current_user = User.find_by user_name: username
-
-        password = PROMPT.ask("Please enter your password:", required: true)
-            until password == current_user.password
-                puts "Incorrect password, please try again"
-                password = PROMPT.ask("Please enter your password:", required: true)
-            end
-        current_user
-    else 
-        puts "Username not found please create a new Account!"
-        current_user = create_new_user_account
+    password = PROMPT.mask("Please enter your password:", required: true)
+    until User.find_by user_name: username, password: password
+        if User.find_by user_name: username
+            current_user = User.find_by user_name: username
+                until password == current_user.password
+                    puts "Username found. Please re-enter your username and password:"
+                    username = PROMPT.ask("Please enter your username:", required: true)
+                    password = PROMPT.mask("Please enter your password:", required: true)
+                end
+        else 
+            # password = nil
+            options = [
+            {"Re-enter username" => -> do username = PROMPT.ask("Please enter your username:", required: true) end},
+            {"Create new account" => -> do current_user = create_new_user_account end}
+            ]
+            PROMPT.select("Username not found. Would you like to?", options)
+        end
+        failed_current_user = User.find_by user_name: username, password: password
+        return failed_current_user
     end
-    current_user
+    current_user = User.find_by user_name: username, password: password
 end
 
-def decision_tree(current_user)
+def user_decision_tree(current_user)
     options = [
         {"Update your user account" => -> do update_user_account(current_user) end},
         {"Delete your user account" => -> do delete_user_account(current_user) end},
@@ -29,26 +35,43 @@ def decision_tree(current_user)
     PROMPT.select("What would you like to do?", options)
 end
 
+
 def create_new_user_account
     user_fullname = PROMPT.ask("Please enter your full name:", required: true)
     
     user_age = PROMPT.ask("Please enter your age (in years):", required: true)
+        if user_age.to_i < 18
+            puts "Sorry. You have to 18 or older to use Ticket Swap!"
+            sleep(2)
+            exit!
+        end
      
     user_username = PROMPT.ask("Please create a new username:", required: true)
+        while User.find_by user_name: user_username
+            puts "Username already exists. Please enter a new username!"
+            user_username = PROMPT.ask("Please create a new username:", required: true)
+        end
      
-    user_password = PROMPT.ask("Please create a password:", required: true)
+    user_password = PROMPT.mask("Please create a password:", required: true)
+        
      
-    user_email = PROMPT.ask("Please enter you email address", required: true)
+    user_email = PROMPT.ask("Please enter your email address", required: true)
+        while User.find_by email: user_email
+            puts "Email already exists. Please enter a new email!"
+            user_email = PROMPT.ask("Please enter your email address", required: true)
+        end
 
-    User.create(user_name: user_username, name: user_fullname, age: user_age, email: user_email, password: user_password)
+    User.create(user_name: user_username, name: user_fullname, age: user_age.to_i, email: user_email, password: user_password)
 end
 
 def update_user_account(current_user)
+    puts "Username: #{current_user.user_name}" 
+    puts "Email: #{current_user.email}"
     options = [
         {"Update your username" => -> do update_username(current_user) end},
         {"Update your password" => -> do update_password(current_user) end},
         {"Update your email" => -> do update_email(current_user) end},
-        {"Return to home menu" => -> do decision_tree(current_user) end}
+        {"Return to home menu" => -> do user_decision_tree(current_user) end}
     ]
     PROMPT.select("What would you like to update?", options) 
 end
