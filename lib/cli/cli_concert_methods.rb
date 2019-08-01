@@ -110,18 +110,29 @@ def create_concert(current_organisation)
     organisation_decision_tree(current_organisation)
 end
 
-def create_tickets(current_organisation)
+def create_tickets(current_organisation, increase_by = nil)
     ticket_price = PROMPT.ask("Please enter the cost of tickets:", require: true)
-    current_organisation.no_of_tickets.times do 
-        Ticket.create(price: ticket_price, concert_id: current_organisation.id)
+    if Concert.find_by venue: current_organisation.venue
+        increase_by.times do
+            Ticket.create(price: ticket_price, concert_id: current_organisation.id)
+        end
+    else
+        current_organisation.no_of_tickets.times do 
+            Ticket.create(price: ticket_price, concert_id: current_organisation.id)
+        end
     end
 end
 
 def cancel_concert(current_organisation)
     confirm_cancellation = PROMPT.yes?("Are you sure you want to cancel this concert?")
     if confirm_cancellation
-        # binding.pry
         current_organisation.update(:venue => nil, :artist => nil, :no_of_tickets => nil, :start_time => nil, :end_time => nil)
+        if Ticket.find_by concert_id: current_organisation.id
+            Ticket.count.times do
+            to_delete = Ticket.find_by concert_id: current_organisation.id
+            to_delete.delete
+            end
+        end
         organisation_decision_tree(current_organisation)
     elsif !confirm_cancellation
         organisation_decision_tree(current_organisation)
@@ -129,10 +140,18 @@ def cancel_concert(current_organisation)
 end
 
 def increase_concert_capacity(current_organisation)
-    increase_by = PROMPT.ask("How many tickets would you like to add for the concert?", require: true)
-    current_organisation.no_of_tickets += increase_by.to_i
-    current_organisation.save
-    organisation_decision_tree(current_organisation)
+    if Ticket.find_by concert_id: current_organisation.id
+        increase_by = PROMPT.ask("How many tickets would you like to add for the concert?", require: true).to_i
+        create_tickets(current_organisation, increase_by)
+        # binding.pry
+        current_organisation.no_of_tickets += increase_by.to_i
+        current_organisation.save
+        organisation_decision_tree(current_organisation)
+    else
+        puts "You haven't created a concert yet!"
+        sleep(2)
+        organisation_decision_tree(current_organisation)
+    end
 end
 
 def logout
