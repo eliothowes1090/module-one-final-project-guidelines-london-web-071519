@@ -4,26 +4,19 @@ require_relative 'cli_welcome_login_and_exit.rb'
 
 
     def run
-        # binding.pry
+   
         welcome_message
         output = login_type
+        
 
             if output.class == User
+                puts "#{output.name} is logged in"
+                sleep(2)
                 user_decision_tree(output)
             elsif output.class == Concert
+                puts "#{output.organisation} is logged in"
                 organisation_decision_tree(output)
             end
-
-        # binding.pry
-        # current_user_or_organisation = login_type
-
-        # puts current_user_or_organisation
-# binding.pry
-        # if current_user_or_organisation == Concert
-
-        # current_user_decision = decision_tree(current_user)
-        #     until current_user_decision == "Logout"
-        #         decision_tree(current_user)
-        #     end
-        # end
     end
+
+    
