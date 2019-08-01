@@ -5,10 +5,12 @@ def user_login
     until User.find_by user_name: $username, password: $password
         options = [
             {"Re-enter login details" => -> do ask_credentials end},
-            {"Create new account" => -> do current_user = create_new_user_account end}]
-                PROMPT.select("Username not found. Would you like to?", options)
-        puts "Username or password not found"
-        ask_credentials
+            {"Create new account" => -> do current_user = create_new_user_account end}
+            ]
+            PROMPT.select("Login Failed! Would you like to:", options)
+            # PROMPT.select("Username not found. Would you like to?", options)
+        # puts "Username or password not found"
+        # ask_credentials
     end
     current_user = User.find_by user_name: $username
     user_decision_tree(current_user)
@@ -37,7 +39,7 @@ def create_new_user_account
     
     user_age = PROMPT.ask("Please enter your age (in years):", required: true)
         if user_age.to_i < 18
-            puts "Sorry. You have to 18 or older to use Ticket Swap!"
+            puts "Sorry. You have to be 18 or older to use Ticket Swap!"
             sleep(2)
             exit!
         end
