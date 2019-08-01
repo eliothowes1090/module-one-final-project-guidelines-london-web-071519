@@ -3,7 +3,7 @@ def organisation_login
     # organisation_name = ask_for_organisation_name
     # organisation_password = ask_for_organisation_password
     organisation_name = PROMPT.ask("Please enter your organisation:", required: true)
-    organisation_password = PROMPT.ask("please enter your password:", required: true)
+    organisation_password = PROMPT.mask("please enter your password:", required: true)
 
     until Concert.find_by organisation: organisation_name, password: organisation_password
         if Concert.find_by organisation: organisation_name 
@@ -11,7 +11,7 @@ def organisation_login
             until organisation_password == current_organisation.password
                 puts "Organisation found. Please re-enter your organisation and password:"
                     organisation_name = PROMPT.ask("please enter your organisation:", required: true)
-                    organisation_password = PROMPT.ask("please enter your password:", required: true)
+                    organisation_password = PROMPT.mask("please enter your password:", required: true)
             end
         else
             # organisation_password = nil
@@ -49,7 +49,7 @@ def organisation_decision_tree(current_organisation)
     options = [
         {"Create a concert" => -> do create_concert(current_organisation) end},
         {"Cancel concert" => -> do "Cancel Concert"end},
-        {"Increase concert capacity" => -> do "Increase capacity" end},
+        {"Increase concert capacity" => -> do increase_concert_capacity(current_organisation) end},
         {"Logout" => -> do logout end} 
     ]
     PROMPT.select("What would you like to do?", options)
@@ -114,8 +114,11 @@ def cancel_concert
     # current.organisation.delete(venue, artist)
 end
 
-def increase_concert_capacity
-
+def increase_concert_capacity(current_organisation)
+    increase_by = PROMPT.ask("How many tickets would you like to add for the concert?", require: true)
+    current_organisation.no_of_tickets += increase_by.to_i
+    current_organisation.save
+    organisation_decision_tree(current_organisation)
 end
 
 
