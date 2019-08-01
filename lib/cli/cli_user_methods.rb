@@ -1,26 +1,22 @@
 def user_login
-    username = PROMPT.ask("Please enter your username:", required: true)
-    password = PROMPT.mask("Please enter your password:", required: true)
-    until User.find_by user_name: username, password: password
-        if User.find_by user_name: username
-            current_user = User.find_by user_name: username
-                until password == current_user.password
-                    puts "Username found. Please re-enter your username and password:"
-                    username = PROMPT.ask("Please enter your username:", required: true)
-                    password = PROMPT.mask("Please enter your password:", required: true)
-                end
-        else 
-            # password = nil
-            options = [
-            {"Re-enter username" => -> do username = PROMPT.ask("Please enter your username:", required: true) end},
-            {"Create new account" => -> do current_user = create_new_user_account end}
-            ]
-            PROMPT.select("Username not found. Would you like to?", options)
-        end
-        failed_current_user = User.find_by user_name: username, password: password
-        return failed_current_user
+    $username = PROMPT.ask("Please enter your username:", required: true)
+    $password = PROMPT.mask("Please enter your password:", required: true)
+    
+    until User.find_by user_name: $username, password: $password
+        options = [
+            {"Re-enter login details" => -> do ask_credentials end},
+            {"Create new account" => -> do current_user = create_new_user_account end}]
+                PROMPT.select("Username not found. Would you like to?", options)
+        puts "Username or password not found"
+        ask_credentials
     end
-    current_user = User.find_by user_name: username, password: password
+    current_user = User.find_by user_name: $username
+    user_decision_tree(current_user)
+end
+
+def ask_credentials
+    $username = PROMPT.ask("Please enter your username:", required: true)
+    $password = PROMPT.mask("Please enter your password:", required: true)
 end
 
 def user_decision_tree(current_user)
@@ -62,11 +58,13 @@ def create_new_user_account
         end
 
     User.create(user_name: user_username, name: user_fullname, age: user_age.to_i, email: user_email, password: user_password)
+    current_user = User.find_by user_name: user_username
+    user_decision_tree(current_user)
 end
 
 def update_user_account(current_user)
-    puts "Username: #{current_user.user_name}" 
-    puts "Email: #{current_user.email}"
+    puts "Your current details are: \n- - -> Username: #{current_user.user_name} - - - Email: #{current_user.email} <- - -"
+    sleep(2)
     options = [
         {"Update your username" => -> do update_username(current_user) end},
         {"Update your password" => -> do update_password(current_user) end},
@@ -116,9 +114,6 @@ def delete_user_account(current_user)
     elsif !confirm_cancellation
         user_decision_tree(current_user)
     end
-    
-    # sleep(2)
-    # current_user = login_type
 end
 
 def convert_obj_to_string(obj)
@@ -128,16 +123,6 @@ end
 def search_for_concerts
     puts "Here are the upcoming concerts"
     up_coming_concerts = Concert.all.where.not(venue: nil)
-    # list_of_concerts = Concert.all.where.not(venue: nil)
-    # array_of_obj_and_strings = {}
-        
-    # list_of_concerts.each do |concert|
-    #     array_of_obj_and_strings[concert] = convert_obj_to_string(concert)
-    # end
-    
-    # selection = PROMPT.select("Please select a concert:", array_of_obj_and_strings.values)
-    # output = array_of_obj_and_strings.key(selection)
-    # output
     up_coming_concerts
 end
 
@@ -159,11 +144,8 @@ def buy_ticket(current_user)
         sleep(2)
         user_decision_tree(current_user)
     else 
-        # puts "Which concert would you like to buy a ticket for?"
         concert_selection = select_concert(search_for_concerts, current_user)
         selected_concert_id = concert_selection.id
-        # binding.pry
-        # need to add in concert_id that matches above
         if Ticket.find_by user_id: nil, concert_id: selected_concert_id
             first_unsold_ticket = Ticket.find_by user_id: nil, concert_id: selected_concert_id
             first_unsold_ticket.update user_id: current_user.id
@@ -174,7 +156,6 @@ def buy_ticket(current_user)
             user_decision_tree(current_user)
         end
     end
-    # user_decision_tree(current_user)
 end
 
 def see_my_tickets(current_user)
@@ -215,15 +196,10 @@ def select_ticket(current_user)
 end
 
 def sell_ticket(current_user)
-    # puts "For which concert would you like to sell your ticket?"
-    # concert_to_sell_ticket_for = nil
-    # first_owned_ticket_that_matches_concert = Ticket.find_by user_id: current_user.id, concert_id: 
     if Ticket.includes(user_id: current_user.id)
         ticket_to_sell = select_ticket(current_user)
         ticket_to_sell.user_id = nil
         ticket_to_sell.save
-        # binding.pry
-        # test = Ticket.select {|ticket| ticket.user_id == current_user.id}
         user_decision_tree(current_user)
     else
         puts "You have no tickets!"
