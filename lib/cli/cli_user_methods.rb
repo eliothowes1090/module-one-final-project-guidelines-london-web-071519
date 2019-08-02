@@ -21,19 +21,6 @@ def ask_credentials
     $password = PROMPT.mask("Please enter your password:", required: true)
 end
 
-def user_decision_tree(current_user)
-    options = [
-        {"Update your user account" => -> do update_user_account(current_user) end},
-        {"Delete your user account" => -> do delete_user_account(current_user) end},
-        {"See upcoming concerts and buy a ticket" => -> do buy_ticket(current_user) end},
-        {"See my tickets" => -> do see_my_tickets(current_user) end},
-        {"Sell ticket" => -> do sell_ticket(current_user) end},
-        {"Logout" => -> do logout end} 
-    ]
-    PROMPT.select("What would you like to do?", options)
-end
-
-
 def create_new_user_account
     user_fullname = PROMPT.ask("Please enter your full name:", required: true)
     
@@ -64,16 +51,31 @@ def create_new_user_account
     user_decision_tree(current_user)
 end
 
-def update_user_account(current_user)
-    puts "Your current details are: \n- - -> Username: #{current_user.user_name} - - - Email: #{current_user.email} <- - -"
-    sleep(2)
+def user_decision_tree(current_user)
     options = [
-        {"Update your username" => -> do update_username(current_user) end},
-        {"Update your password" => -> do update_password(current_user) end},
-        {"Update your email" => -> do update_email(current_user) end},
-        {"Return to home menu" => -> do user_decision_tree(current_user) end}
+        {"Update your user account" => -> do update_user_account(current_user) end},
+        {"Delete your user account" => -> do delete_user_account(current_user) end},
+        {"See upcoming concerts and buy a ticket" => -> do buy_ticket(current_user) end},
+        {"See my tickets" => -> do see_my_tickets(current_user) end},
+        {"Sell ticket" => -> do sell_ticket(current_user) end},
+        {"Logout" => -> do logout end} 
     ]
-    PROMPT.select("What would you like to update?", options) 
+    PROMPT.select("What would you like to do?", options)
+end
+
+def update_user_account(current_user)
+    user_selection = nil
+    until user_selection == "Return to home menu"
+        puts "Your current details are: \n- - -> Username: #{current_user.user_name} - - - Email: #{current_user.email} <- - -"
+        sleep(2)
+        options = [
+            {"Update your username" => -> do update_username(current_user) end},
+            {"Update your password" => -> do update_password(current_user) end},
+            {"Update your email" => -> do update_email(current_user) end},
+            {"Return to home menu" => -> do user_decision_tree(current_user) end}
+        ]
+        user_selection = PROMPT.select("What would you like to do?", options) 
+    end
 end
 
 def update_username(current_user)
@@ -87,7 +89,7 @@ def update_username(current_user)
 end
 
 def update_password(current_user)
-    current_user.update(password: PROMPT.ask("Input new password", required: true))
+    current_user.update(password: PROMPT.mask("Input new password", required: true))
 end
 
 def update_email(current_user)
@@ -104,9 +106,10 @@ def delete_user_account(current_user)
     confirm_cancellation = PROMPT.yes?("Are you sure you want to delete your user account?")
     if confirm_cancellation
             if Ticket.find_by user_id: current_user.id
-                Ticket.count.times do
-                    to_delete = Ticket.find_by user_id: current_user.id
-                    to_delete.delete
+                Ticket.select{|ticket| ticket.user_id == current_user.id}.count.times do
+                    ticket_to_sell = Ticket.find_by user_id: current_user.id 
+                    ticket_to_sell.user_id = nil
+                    ticket_to_sell.save
                 end
             end
         puts "Your account has been deleted"

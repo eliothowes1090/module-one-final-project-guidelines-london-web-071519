@@ -4,6 +4,7 @@ require_relative 'cli_welcome_login_and_exit.rb'
 
 
     def run
+        
         welcome_message
         output = login_type
    
@@ -14,7 +15,7 @@ require_relative 'cli_welcome_login_and_exit.rb'
             elsif output.class == Concert
                 puts "#{output.organisation} is logged in"
                 organisation_decision_tree(output)
+       
+       
             end
     end
-
-    
