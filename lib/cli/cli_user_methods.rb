@@ -8,9 +8,6 @@ def user_login
             {"Create new account" => -> do current_user = create_new_user_account end}
             ]
             PROMPT.select("Login Failed! Would you like to:", options)
-            # PROMPT.select("Username not found. Would you like to?", options)
-        # puts "Username or password not found"
-        # ask_credentials
     end
     current_user = User.find_by user_name: $username
     user_decision_tree(current_user)
@@ -48,17 +45,20 @@ def create_new_user_account
 
     User.create(user_name: user_username, name: user_fullname, age: user_age.to_i, email: user_email, password: user_password)
     current_user = User.find_by user_name: user_username
+    
     user_decision_tree(current_user)
 end
 
 def user_decision_tree(current_user)
+    clear_console
+    puts Rainbow("Logged in as: #{current_user.user_name}").indianred
     options = [
         {"Update your user account" => -> do update_user_account(current_user) end},
         {"Delete your user account" => -> do delete_user_account(current_user) end},
         {"See upcoming concerts and buy a ticket" => -> do buy_ticket(current_user) end},
         {"See my tickets" => -> do see_my_tickets(current_user) end},
         {"Sell ticket" => -> do sell_ticket(current_user) end},
-        {"Logout" => -> do logout end} 
+        {"Logout" => -> do logout(current_user) end} 
     ]
     PROMPT.select("What would you like to do?", options)
 end
@@ -213,8 +213,10 @@ def sell_ticket(current_user)
     end
 end
 
-def logout
-    puts "You have logged out"
+def logout(current_user)
+    clear_console
+    puts Rainbow("#{current_user.user_name} logged out").red
     sleep(2)
+    clear_console
     current_user = login_type
 end

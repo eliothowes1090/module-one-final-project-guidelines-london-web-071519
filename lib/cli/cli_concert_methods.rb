@@ -5,7 +5,7 @@ def organisation_login
     until Concert.find_by organisation: $organisation_name, password: $organisation_password
         options = [
             {"Re-enter login details" => -> do ask_organisation_credentials end},
-            {"Create new account" => -> do current_organisation = create_new_organisation_account end}
+            {"Create a new organisation" => -> do current_organisation = create_new_organisation_account end}
         ]
         PROMPT.select("Login Failed! Would you like to:", options)
     end
@@ -39,11 +39,13 @@ def create_new_organisation_account
 end
 
 def organisation_decision_tree(current_organisation)
+    clear_console
+    puts Rainbow("Logged in as: #{current_organisation.organisation}").indianred
     options = [
         {"Create a concert" => -> do create_concert(current_organisation) end},
         {"Cancel concert" => -> do cancel_concert(current_organisation) end},
         {"Increase concert capacity" => -> do increase_concert_capacity(current_organisation) end},
-        {"Logout" => -> do logout end} 
+        {"Logout" => -> do concert_logout(current_organisation) end} 
     ]
     PROMPT.select("What would you like to do?", options)
 end
@@ -130,8 +132,28 @@ def increase_concert_capacity(current_organisation)
     end
 end
 
-def logout
-    puts "You have logged out"
+def concert_logout(current_organisation)
+    clear_console
+    puts Rainbow("#{current_organisation.organisation} logged out").red
     sleep(2)
+    clear_console
     current_organisation = login_type
 end
+
+
+puts "
+__   __| |               | |                         / _|                     (_)
+   | |  | |__   __ _ _ __ | | __  _   _  ___     _  | | ___  _ __   _   _ ___ _ _ __   __ _
+   | |  | '_ \ / _ | '_ \| |/ / | | | |/ _ \| | | | |  _/ _ \| '__| | | | / __| | '_ \ / _ |
+   | |  | | | | (| | | | |   <  | |_| | () | |_| | | || (_) | |    | |_| \__ \ | | | | (_| |
+   |_|  |_| |_|\__,_|_| |_|_|\_\  \__, |\___/ \__,_| |_| \___/|_|     \__,_|___/_|_| |_|\__, |
+                                   __/ |                                                 __/ |
+ _______      _              __|___/     __           _                              |___/
+|__   __(_)    | |      | |     \ \        / /          | |
+   | |    ___| | _____| |   __\ \  /\  / /_ _ _ __   | |
+   | |  | |/ __| |/ / _ \ __| / __\ \/  \/ / _` | '_ \  | |
+   | |  | | (__|   <  __/ |_  \__ \\  /\  / (| | |) | |_|
+   |_|  |_|\___|_|\_\___|\__| |___/ \/  \/ \__,_| .__/  (_)
+                                                | |
+                                                |_|
+"
